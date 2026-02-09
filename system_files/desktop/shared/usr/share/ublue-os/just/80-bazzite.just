@@ -461,30 +461,31 @@ bazzite-cli:
     # Remove bling, handle if old method
     function remove-bling(){
     shell="$1"
+    local line=""
     if [[ "${shell}" == "fish" ]]; then
         sed -i '/### bling.fish source start/,/### bling.fish source end/d' \
             "${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish" \
             || \
-            line=$(grep -n "source /usr/share/ublue-os/bluefin-cli/bling.fish" \
+            { line=$(grep -n "source /usr/share/bazzite-cli/bling.fish" \
             "${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish" \
-            | grep -Eo '^[^:]+') && sed -i "${line}"d \
-            "${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish"
+            | grep -Eo '^[^:]+' | head -n1) && [[ -n "${line}" ]] && sed -i "${line}"d \
+            "${XDG_CONFIG_HOME:-$HOME/.config}/fish/config.fish"; }
     elif [[ "${shell}" == "zsh" ]]; then
         sed -i '/### bling.sh source start/,/### bling.sh source end/d' \
             "${ZDOTDIR:-$HOME}/.zshrc" \
             || \
-            line=$(grep -n "source /usr/share/ublue-os/bluefin-cli/bling.sh" \
+            { line=$(grep -n "source /usr/share/bazzite-cli/bling.sh" \
             "${ZDOTDIR:-$HOME}/.zshrc" \
-            | grep -Eo '^[^:]+') && sed -i "${line}"d \
-            "${ZDOTDIR:-$HOME}/.zshrc"
+            | grep -Eo '^[^:]+' | head -n1) && [[ -n "${line}" ]] && sed -i "${line}"d \
+            "${ZDOTDIR:-$HOME}/.zshrc"; }
     elif [[ "${shell}" == "bash" ]]; then
         sed -i '/### bling.sh source start/,/### bling.sh source end/d' \
             "${HOME}/.bashrc" \
             || \
-            line=$(grep -n "source /usr/share/ublue-os/bluefin-cli/bling.sh" \
+            { line=$(grep -n "source /usr/share/bazzite-cli/bling.sh" \
             "${HOME}/.bashrc" \
-            | grep -Eo '^[^:]+') && sed -i "${line}"d \
-            "${HOME}/.bashrc"
+            | grep -Eo '^[^:]+' | head -n1) && [[ -n "${line}" ]] && sed -i "${line}"d \
+            "${HOME}/.bashrc"; }
     fi
     }
 
@@ -642,21 +643,18 @@ toggle-global-fsr4-rdna3 ACTION="":
             echo "No changes made."
             ;;
     esac
-    
+
 # Toggle global Proton DLSS upgrade; updates DLSS DLLs for Proton
 [group("gaming")]
 toggle-global-dlss ACTION="":
     #!/usr/bin/bash
     set -euo pipefail
     source /usr/lib/ujust/ujust.sh
-
     FILE="$HOME/.config/environment.d/99-proton-dlss.conf"
-
     CURRENT="Disabled"
     if [[ -f "$FILE" ]]; then
         CURRENT="Enabled"
     fi
-
     OPTION="{{ ACTION }}"
     if [[ -z "$OPTION" ]]; then
         echo -e "${bold}Global DLSS Upgrade:${normal} $CURRENT"
@@ -667,7 +665,6 @@ toggle-global-dlss ACTION="":
         echo ""
         OPTION="$(ugum choose "Enable" "Disable" "Exit without saving")"
     fi
-
     case "$OPTION" in
         Enable|enable)
             mkdir -p "$HOME/.config/environment.d"
